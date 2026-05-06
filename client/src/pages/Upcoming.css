@@ -1,0 +1,329 @@
+/* ── Page ───────────────────────────────────────────────────── */
+.upc-page { max-width: 1100px; }
+
+/* ── Summary Row ─────────────────────────────────────────────── */
+.upc-summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.upc-sum-card {
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+  transition: transform 0.15s;
+}
+
+.upc-sum-card:hover { transform: translateY(-2px); }
+
+.upc-sum-icon {
+  width: 44px; height: 44px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.upc-sum-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.upc-sum-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.upc-sum-income   { background: linear-gradient(135deg, #064e3b, #059669); box-shadow: 0 6px 20px rgba(5,150,105,0.3); }
+.upc-sum-expense  { background: linear-gradient(135deg, #7f1d1d, #dc2626); box-shadow: 0 6px 20px rgba(220,38,38,0.3); }
+.upc-sum-net-pos  { background: linear-gradient(135deg, #1e1b4b, #2563eb); box-shadow: 0 6px 20px rgba(37,99,235,0.3); }
+.upc-sum-net-neg  { background: linear-gradient(135deg, #78350f, #d97706); box-shadow: 0 6px 20px rgba(217,119,6,0.3); }
+.upc-sum-overdue  { background: linear-gradient(135deg, #7f1d1d, #b91c1c); box-shadow: 0 6px 20px rgba(185,28,28,0.4); animation: overduePulse 2s ease-in-out infinite; }
+.upc-sum-clear    { background: linear-gradient(135deg, #14532d, #15803d); box-shadow: 0 6px 20px rgba(21,128,61,0.3); }
+
+@keyframes overduePulse {
+  0%,100% { box-shadow: 0 6px 20px rgba(185,28,28,0.4); }
+  50%     { box-shadow: 0 6px 32px rgba(185,28,28,0.7); }
+}
+
+/* ── Filter Tabs ─────────────────────────────────────────────── */
+.upc-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.upc-filter-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.upc-tab {
+  padding: 7px 16px;
+  border-radius: 30px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.upc-tab:hover { border-color: #6366f1; color: #4338ca; background: #eef2ff; }
+.upc-tab.active { background: #1e3a8a; border-color: #1e3a8a; color: #fff; }
+.upc-tab.tab-danger { border-color: #fecaca; color: #dc2626; }
+.upc-tab.tab-danger.active { background: #dc2626; border-color: #dc2626; color: #fff; }
+
+/* ── Today Alert ─────────────────────────────────────────────── */
+.upc-today-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #fefce8, #fef9c3);
+  border: 1.5px solid #fde68a;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  color: #92400e;
+  flex-wrap: wrap;
+}
+
+.upc-today-alert .fa-bell { color: #d97706; font-size: 1rem; }
+.upc-today-alert strong   { font-weight: 800; }
+
+.upc-today-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.upc-today-pill.income  { background: #dcfce7; color: #15803d; }
+.upc-today-pill.expense { background: #fee2e2; color: #dc2626; }
+
+/* ── List ────────────────────────────────────────────────────── */
+.upc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upc-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
+  transition: box-shadow 0.15s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.upc-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-1px); }
+.upc-item.is-overdue { border-left: none; }
+.upc-item.is-paid    { opacity: 0.65; }
+
+.upc-accent {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  border-radius: 0 2px 2px 0;
+}
+
+.upc-accent.income  { background: #10b981; }
+.upc-accent.expense { background: #ef4444; }
+.upc-item.is-overdue .upc-accent { background: #dc2626; }
+.upc-item.is-paid    .upc-accent { background: #94a3b8; }
+
+.upc-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.upc-icon.income  { background: #dcfce7; color: #16a34a; }
+.upc-icon.expense { background: #fee2e2; color: #dc2626; }
+.upc-item.is-overdue .upc-icon { background: #fee2e2; color: #dc2626; }
+
+.upc-info { flex: 1; min-width: 0; }
+
+.upc-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 3px;
+}
+
+.upc-meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.upc-cat-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Due date column */
+.upc-due {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 90px;
+}
+
+.upc-due-date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.upc-overdue-days {
+  font-size: 0.7rem;
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* Tomorrow item — special glow animation */
+.upc-item.is-tomorrow {
+  border: 2px solid #f59e0b;
+  animation: tomorrowGlow 2s ease-in-out infinite;
+}
+
+.upc-item.is-tomorrow .upc-accent {
+  background: linear-gradient(180deg, #f59e0b, #d97706);
+}
+
+@keyframes tomorrowGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245,158,11,0.0),  0 4px 14px rgba(0,0,0,0.06);
+    border-color: #f59e0b;
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(245,158,11,0.18), 0 6px 24px rgba(245,158,11,0.25);
+    border-color: #d97706;
+  }
+}
+
+/* Status badges */
+.upc-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.due-paid     { background: #f1f5f9; color: #64748b; }
+.due-overdue  { background: #fee2e2; color: #dc2626; animation: overduePulse 2s ease-in-out infinite; }
+.due-today    { background: #fef9c3; color: #a16207; }
+.due-tomorrow {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  animation: tomorrowBadgeBlink 1.4s ease-in-out infinite;
+}
+.due-soon     { background: #fff7ed; color: #c2410c; }
+
+@keyframes tomorrowBadgeBlink {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%      { opacity: 0.65; transform: scale(1.08); }
+}
+.due-upcoming { background: #eff6ff; color: #1d4ed8; }
+
+/* Amount */
+.upc-amount {
+  font-size: 1rem;
+  font-weight: 800;
+  min-width: 110px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.upc-amount.income  { color: #16a34a; }
+.upc-amount.expense { color: #dc2626; }
+
+/* Actions */
+.upc-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Type Toggle (modal) ─────────────────────────────────────── */
+.upc-type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.upc-type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+
+.upc-type-btn.active-income  { border-color: #10b981; background: #f0fdf4; color: #065f46; }
+.upc-type-btn.active-expense { border-color: #ef4444; background: #fff5f5; color: #7f1d1d; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .upc-summary-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 700px) {
+  .upc-item        { flex-wrap: wrap; gap: 10px; }
+  .upc-info        { min-width: calc(100% - 60px); }
+  .upc-due         { min-width: auto; align-items: flex-start; }
+  .upc-amount      { min-width: auto; text-align: left; }
+  .upc-actions     { width: 100%; justify-content: flex-end; }
+}
+
+@media (max-width: 500px) {
+  .upc-summary-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .upc-sum-val     { font-size: 1.1rem; }
+}

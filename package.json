@@ -1,0 +1,11 @@
+{
+  "name": "finance-monitor",
+  "version": "1.0.0",
+  "description": "Project Finance Monitoring - React + jQuery + Node.js + SQLite3",
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --legacy-peer-deps --prefix client",
+    "start:server": "npm start --prefix server",
+    "start:client": "npm start --prefix client",
+    "dev": "start cmd /k \"npm run start:server\" && start cmd /k \"npm run start:client\""
+  }
+}
