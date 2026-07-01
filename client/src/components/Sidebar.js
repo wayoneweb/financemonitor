@@ -20,6 +20,29 @@ const navGroups = [
     ],
   },
   {
+    label: 'Finance',
+    links: [
+      { to: '/loans',       icon: 'fa-hand-holding-dollar', label: 'Loans & EMI',  alertKey: 'loans' },
+      { to: '/investments', icon: 'fa-chart-line',           label: 'Investments', alertKey: 'invest' },
+      { to: '/assets',      icon: 'fa-boxes-stacked',        label: 'Assets' },
+      { to: '/bank',        icon: 'fa-building-columns',     label: 'Bank Reconciliation' },
+    ],
+  },
+  {
+    label: 'Documents',
+    links: [
+      { to: '/invoices', icon: 'fa-file-invoice-dollar', label: 'Invoices & Quotations' },
+    ],
+  },
+  {
+    label: 'HR & Payroll',
+    links: [
+      { to: '/staff',      icon: 'fa-id-card',    label: 'Staff Management' },
+      { to: '/attendance', icon: 'fa-calendar-check', label: 'Attendance' },
+      { to: '/payroll',    icon: 'fa-money-check-dollar', label: 'Payroll' },
+    ],
+  },
+  {
     label: 'Reports',
     links: [
       { to: '/reports', icon: 'fa-file-export', label: 'Export / Import' },
@@ -29,7 +52,10 @@ const navGroups = [
 
 const EMPTY_PWD = { current: '', newPwd: '', confirm: '' };
 
-export default function Sidebar({ open, onClose, onLogout }) {
+const ROLE_LABELS = { admin: 'Administrator', staff: 'Staff', accountant: 'Accountant' };
+
+export default function Sidebar({ open, onClose, onLogout, role, loanAlerts, investAlerts }) {
+  const alertMap = { loans: loanAlerts || 0, invest: investAlerts || 0 };
   const [pwdModal, setPwdModal] = useState(false);
   const [form,     setForm]     = useState(EMPTY_PWD);
   const [show,     setShow]     = useState({ current: false, newPwd: false, confirm: false });
@@ -87,10 +113,12 @@ export default function Sidebar({ open, onClose, onLogout }) {
       <aside className={'sidebar' + (open ? ' sidebar-open' : '')}>
         {/* Brand */}
         <div className="sidebar-brand">
-          <div className="brand-icon"><i className="fa fa-coins" /></div>
-          <div>
-            <div className="brand-name">FinanceMonitor</div>
-            <div className="brand-sub">Project Tracking</div>
+          <div className="brand-icon">
+            <img src="/logo-badge.png" alt="Wayone" className="brand-logo-img" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="brand-name">Wayone Business Mate</div>
+            <div className="brand-sub">Business Management</div>
           </div>
           <button className="sidebar-close" onClick={onClose} aria-label="Close menu">
             <i className="fa fa-xmark" />
@@ -102,20 +130,39 @@ export default function Sidebar({ open, onClose, onLogout }) {
           {navGroups.map((group) => (
             <React.Fragment key={group.label}>
               <div className="nav-section-label">{group.label}</div>
-              {group.links.map(({ to, icon, label, badge }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  onClick={onClose}
-                  className={({ isActive }) => 'nav-item' + (isActive ? ' active' : '')}
-                >
-                  <i className={`fa ${icon}`} />
-                  <span>{label}</span>
-                  {badge && <span className="nav-badge"><i className="fa fa-plus" /></span>}
-                </NavLink>
-              ))}
+              {group.links.map(({ to, icon, label, badge, alertKey }) => {
+                const alertCount = alertKey ? alertMap[alertKey] : 0;
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={onClose}
+                    className={({ isActive }) => 'nav-item' + (isActive ? ' active' : '')}
+                  >
+                    <i className={`fa ${icon}`} />
+                    <span>{label}</span>
+                    {badge && <span className="nav-badge"><i className="fa fa-plus" /></span>}
+                    {alertCount > 0 && (
+                      <span className="nav-alert-badge">{alertCount > 9 ? '9+' : alertCount}</span>
+                    )}
+                  </NavLink>
+                );
+              })}
             </React.Fragment>
           ))}
+          {role === 'admin' && (
+            <>
+              <div className="nav-section-label">Administration</div>
+              <NavLink
+                to="/users"
+                onClick={onClose}
+                className={({ isActive }) => 'nav-item' + (isActive ? ' active' : '')}
+              >
+                <i className="fa fa-users-gear" />
+                <span>User Management</span>
+              </NavLink>
+            </>
+          )}
         </nav>
 
         {/* Footer */}
@@ -124,7 +171,7 @@ export default function Sidebar({ open, onClose, onLogout }) {
             <div className="footer-avatar"><i className="fa fa-user" /></div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="footer-name">{localStorage.getItem('fm_user') || 'admin'}</div>
-              <div className="footer-role">Administrator</div>
+              <div className="footer-role">{ROLE_LABELS[role] || 'User'}</div>
             </div>
             <button className="footer-icon-btn" onClick={openPwd} title="Change password">
               <i className="fa fa-key" />

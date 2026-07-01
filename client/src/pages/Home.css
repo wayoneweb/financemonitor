@@ -1,0 +1,327 @@
+/* ── Home / Splash Page ───────────────────────────────────────── */
+.home-page {
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Background decorative blobs */
+.home-deco {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.home-deco-1 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(0,150,136,0.06) 0%, transparent 65%);
+  top: -200px; right: -200px;
+}
+
+.home-deco-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,193,7,0.09) 0%, transparent 65%);
+  bottom: -130px; left: -130px;
+}
+
+.home-deco-3 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(0,150,136,0.05) 0%, transparent 65%);
+  bottom: 100px; right: 80px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SPLASH — Logo block
+   ═══════════════════════════════════════════════════════════════ */
+.home-logo-block {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: hLogoIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.home-logo-block.logo-exiting {
+  animation: hLogoOut 0.7s ease forwards;
+}
+
+.home-logo-block.logo-gone {
+  display: none;
+}
+
+@keyframes hLogoIn {
+  from { opacity: 0; transform: scale(0.65); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes hLogoOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(1.08) translateY(-40px); }
+}
+
+/* ── Ambient glow ring (blurred disc behind the badge) ── */
+.home-logo-glow-ring {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: rgba(0, 150, 136, 0.18);
+  filter: blur(40px);
+  z-index: 0;
+  animation: glowRingPulse 3s ease-in-out 0.8s infinite;
+}
+
+@keyframes glowRingPulse {
+  0%, 100% { transform: scale(1);    opacity: 0.45; }
+  50%      { transform: scale(1.45); opacity: 1;    }
+}
+
+/* ── Logo container (no overflow:hidden — keeps drop-shadow visible) ── */
+.home-logo-container {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Badge image with glow-blink + float animations ── */
+.home-logo-img {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  /* Combined: slow glow build → blink × 2 → bright hold → slow dim */
+  animation:
+    logoGlowBlink 5s ease-in-out 0.8s infinite,
+    logoFloat     4s ease-in-out 0.8s infinite;
+}
+
+/* Slow glow build-up → 2 quick blinks → hold → dim */
+@keyframes logoGlowBlink {
+  /* Base */
+  0% {
+    filter: drop-shadow(0 0 10px rgba(0,150,136,0.4))
+            drop-shadow(0 0 25px rgba(0,150,136,0.18));
+  }
+  /* Slow intensify */
+  22% {
+    filter: drop-shadow(0 0 28px rgba(0,150,136,0.85))
+            drop-shadow(0 0 65px rgba(0,150,136,0.52))
+            drop-shadow(0 0 120px rgba(0,150,136,0.28))
+            brightness(1.12);
+  }
+  /* Blink 1 — off */
+  30% {
+    filter: drop-shadow(0 0 6px rgba(0,150,136,0.22))
+            brightness(0.82);
+  }
+  /* Blink 1 — on */
+  36% {
+    filter: drop-shadow(0 0 34px rgba(0,150,136,0.92))
+            drop-shadow(0 0 80px rgba(0,150,136,0.58))
+            drop-shadow(0 0 140px rgba(0,150,136,0.32))
+            brightness(1.28);
+  }
+  /* Blink 2 — off */
+  42% {
+    filter: drop-shadow(0 0 6px rgba(0,150,136,0.22))
+            brightness(0.82);
+  }
+  /* Blink 2 — on (brightest) */
+  48% {
+    filter: drop-shadow(0 0 38px rgba(0,150,136,0.96))
+            drop-shadow(0 0 90px rgba(0,150,136,0.65))
+            drop-shadow(0 0 160px rgba(0,150,136,0.38))
+            brightness(1.36);
+  }
+  /* Slow dim back */
+  78% {
+    filter: drop-shadow(0 0 14px rgba(0,150,136,0.46))
+            drop-shadow(0 0 36px rgba(0,150,136,0.22));
+  }
+  100% {
+    filter: drop-shadow(0 0 10px rgba(0,150,136,0.4))
+            drop-shadow(0 0 25px rgba(0,150,136,0.18));
+  }
+}
+
+/* Slow floating motion */
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px) scale(1);    }
+  50%      { transform: translateY(-10px) scale(1.015); }
+}
+
+/* ── Light sweep (shine) — clipped to circle via clip-path ── */
+.home-logo-shine {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
+  overflow: hidden;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.home-logo-shine::after {
+  content: '';
+  position: absolute;
+  top: -120%;
+  left: -90%;
+  width: 55%;
+  height: 340%;
+  background: linear-gradient(
+    105deg,
+    transparent    30%,
+    rgba(255,255,255,0.88) 46%,
+    rgba(255,255,255,0.65) 52%,
+    transparent    68%
+  );
+  animation: logoShine 5s ease-in-out 1.2s infinite;
+}
+
+/* Sweep enters at 15% of 5s = 0.75s, exits at 55% = 2.75s */
+@keyframes logoShine {
+  0%, 14%  { transform: translate(-200%, -60%) rotate(10deg); opacity: 0;   }
+  18%      { opacity: 1; }
+  52%      { transform: translate(250%,  140%) rotate(10deg); opacity: 0.65; }
+  56%, 100%{ transform: translate(250%,  140%) rotate(10deg); opacity: 0;   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOME CONTENT (after logo fades out)
+   ═══════════════════════════════════════════════════════════════ */
+.home-content-block {
+  text-align: center;
+  max-width: 580px;
+  padding: 48px 32px;
+  opacity: 0;
+  transform: translateY(38px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+  pointer-events: none;
+  position: relative;
+  z-index: 5;
+}
+
+.home-content-block.content-in {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+/* Rectangular wordmark logo as the page title */
+.home-brand-img {
+  max-width: 340px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 12px rgba(0,150,136,0.12));
+}
+
+.home-slogan {
+  font-size: 1.18rem;
+  color: #555555;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  margin-bottom: 22px;
+}
+
+.home-divider {
+  width: 60px;
+  height: 4px;
+  background: #FFC107;
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+
+.home-product-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #cccccc;
+  margin-bottom: 38px;
+}
+
+/* ── CTA ──────────────────────────────────────────────────────── */
+.home-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.home-cta.cta-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 44px;
+  background: #FFC107;
+  color: #111111;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 32px rgba(255, 193, 7, 0.38);
+  transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.home-btn:hover {
+  background: #FFB300;
+  box-shadow: 0 10px 40px rgba(255, 193, 7, 0.52);
+  transform: translateY(-2px);
+}
+
+.home-btn:active {
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 4px 16px rgba(255, 193, 7, 0.3);
+}
+
+.home-secure {
+  font-size: 0.75rem;
+  color: #bbbbbb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .home-logo-img     { width: 190px; height: 190px; }
+  .home-logo-container { width: 200px; height: 200px; }
+  .home-logo-glow-ring { width: 260px; height: 260px; }
+  .home-brand-img    { max-width: 260px; }
+  .home-slogan       { font-size: 1rem; }
+  .home-btn          { padding: 14px 28px; font-size: 0.95rem; }
+  .home-content-block { padding: 32px 20px; }
+}
+
+@media (max-width: 380px) {
+  .home-logo-img     { width: 150px; height: 150px; }
+  .home-logo-container { width: 160px; height: 160px; }
+  .home-brand-img    { max-width: 210px; }
+  .home-btn          { padding: 13px 20px; width: 100%; justify-content: center; }
+}

@@ -37,7 +37,8 @@ export default function Login({ onLogin }) {
       if (data.success) {
         localStorage.setItem('fm_token', data.token);
         localStorage.setItem('fm_user', data.username);
-        onLogin(data.token, data.username);
+        localStorage.setItem('fm_role', data.role || 'staff');
+        onLogin(data.token, data.username, data.role || 'staff');
       } else {
         setError(data.message || 'Invalid credentials.');
         shake();
@@ -56,17 +57,17 @@ export default function Login({ onLogin }) {
       <div className="login-panel-left">
         <div className="lp-inner">
           <div className="lp-logo">
-            <i className="fa fa-coins" />
+            <img src="/logo-badge.png" alt="Wayone Technologies" className="lp-logo-img" />
           </div>
-          <h1 className="lp-title">Finance<br />Monitor</h1>
-          <p className="lp-sub">Project-level income &amp; expense tracking<br />with full audit trail and reports.</p>
+          <h1 className="lp-title">Wayone<br />Business Mate</h1>
+          <p className="lp-sub">Complete business management solution<br />by Wayone Technologies.</p>
 
           <ul className="lp-features">
-            <li><i className="fa fa-circle-check" /> Real-time dashboard &amp; KPI cards</li>
-            <li><i className="fa fa-circle-check" /> Per-project income &amp; expense tracking</li>
-            <li><i className="fa fa-circle-check" /> Bill &amp; receipt proof uploads</li>
-            <li><i className="fa fa-circle-check" /> Export to Excel &amp; PDF</li>
-            <li><i className="fa fa-circle-check" /> Import from Excel with preview</li>
+            <li><i className="fa fa-circle-check" /> Financial tracking &amp; KPI dashboard</li>
+            <li><i className="fa fa-circle-check" /> Invoice &amp; quotation management</li>
+            <li><i className="fa fa-circle-check" /> HR, payroll &amp; attendance</li>
+            <li><i className="fa fa-circle-check" /> Loans, investments &amp; assets</li>
+            <li><i className="fa fa-circle-check" /> Bank reconciliation &amp; reports</li>
           </ul>
         </div>
 
@@ -82,10 +83,10 @@ export default function Login({ onLogin }) {
         <div className="login-form-wrap" ref={formRef}>
           <div className="login-form-header">
             <div className="login-mobile-logo">
-              <i className="fa fa-coins" />
+              <img src="/logo-badge.png" alt="Wayone" className="lm-logo-img" />
             </div>
             <h2 className="login-heading">Welcome back</h2>
-            <p className="login-hint">Sign in to your Finance Monitor account</p>
+            <p className="login-hint">Sign in to your Wayone Business Mate account</p>
           </div>
 
           <form onSubmit={submit} noValidate>

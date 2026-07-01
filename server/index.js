@@ -21,6 +21,13 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/upcoming', require('./routes/upcoming'));
 app.use('/api/export', require('./routes/exportRoute'));
 app.use('/api/import', require('./routes/importRoute'));
+app.use('/api/users',       require('./routes/usersRoute'));
+app.use('/api/loans',       require('./routes/loansRoute'));
+app.use('/api/investments', require('./routes/investmentsRoute'));
+app.use('/api/assets',      require('./routes/assetsRoute'));
+app.use('/api/bank',        require('./routes/bankRoute'));
+app.use('/api/invoices',    require('./routes/invoicesRoute'));
+app.use('/api/hr',         require('./routes/hrRoute'));
 
 // Serve React build in production
 const clientBuild = path.join(__dirname, '../client/build');

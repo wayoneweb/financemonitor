@@ -7,12 +7,18 @@ const db = require('../database');
 function buildFilter(query) {
   const conditions = [];
   const params = [];
-  if (query.type) { conditions.push("t.type = ?"); params.push(query.type); }
-  if (query.project_id) { conditions.push("t.project_id = ?"); params.push(query.project_id); }
-  if (query.category_id) { conditions.push("t.category_id = ?"); params.push(query.category_id); }
-  if (query.status) { conditions.push("t.status = ?"); params.push(query.status); }
-  if (query.date_from) { conditions.push("t.date >= ?"); params.push(query.date_from); }
-  if (query.date_to) { conditions.push("t.date <= ?"); params.push(query.date_to); }
+  if (query.type)           { conditions.push("t.type = ?");           params.push(query.type); }
+  if (query.project_id)     { conditions.push("t.project_id = ?");     params.push(query.project_id); }
+  if (query.category_id)    { conditions.push("t.category_id = ?");    params.push(query.category_id); }
+  if (query.status)         { conditions.push("t.status = ?");         params.push(query.status); }
+  if (query.payment_method) { conditions.push("t.payment_method = ?"); params.push(query.payment_method); }
+  if (query.date_from)      { conditions.push("t.date >= ?");          params.push(query.date_from); }
+  if (query.date_to)        { conditions.push("t.date <= ?");          params.push(query.date_to); }
+  if (query.search) {
+    conditions.push("(t.title LIKE ? OR t.party_name LIKE ? OR t.reference_no LIKE ?)");
+    const s = `%${query.search}%`;
+    params.push(s, s, s);
+  }
   return { where: conditions.length ? ' WHERE ' + conditions.join(' AND ') : '', params };
 }
 
@@ -171,85 +177,154 @@ router.get('/pdf', (req, res) => {
   db.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
 
-    const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape' });
+    const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 0, autoFirstPage: true });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="finance-report-${Date.now()}.pdf"`);
     doc.pipe(res);
 
-    // Title
-    doc.fontSize(20).fillColor('#1A237E').text('Project Finance Report', { align: 'center' });
-    doc.fontSize(10).fillColor('#666').text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
-    doc.moveDown(0.5);
+    // Helvetica (built-in) has no Rs glyph — use "Rs." prefix throughout
+    const fmt = (n) => 'Rs. ' + Number(n || 0).toFixed(2);
 
-    // Summary
+    // A4 Landscape: 841.89 x 595.28 pt  |  1 inch = 72 pt
+    const M     = 72;
+    const pageW = doc.page.width;   // 841.89
+    const pageH = doc.page.height;  // 595.28
+    const contW = pageW - M * 2;    // 697.89
+
+    // ── Totals ────────────────────────────────────────────────
     let totalIncome = 0, totalExpense = 0;
     rows.forEach((r) => { r.type === 'income' ? totalIncome += r.amount : totalExpense += r.amount; });
     const net = totalIncome - totalExpense;
 
-    doc.fontSize(11).fillColor('#000');
-    const summaryY = doc.y;
-    doc.roundedRect(40, summaryY, 230, 60, 5).fillAndStroke('#E8F5E9', '#4CAF50');
-    doc.fillColor('#2E7D32').text(`Total Income: ₹${totalIncome.toFixed(2)}`, 50, summaryY + 10);
-    doc.roundedRect(290, summaryY, 230, 60, 5).fillAndStroke('#FFEBEE', '#F44336');
-    doc.fillColor('#C62828').text(`Total Expense: ₹${totalExpense.toFixed(2)}`, 300, summaryY + 10);
-    doc.roundedRect(540, summaryY, 230, 60, 5).fillAndStroke(net >= 0 ? '#E3F2FD' : '#FFF3E0', net >= 0 ? '#1976D2' : '#E65100');
-    doc.fillColor(net >= 0 ? '#0D47A1' : '#E65100').text(`Net Balance: ₹${net.toFixed(2)}`, 550, summaryY + 10);
-    doc.fillColor('#555').text(`Total Records: ${rows.length}`, 550, summaryY + 30);
+    // ── Full-bleed banner ─────────────────────────────────────
+    const BANNER_H = 64;
+    doc.rect(0, 0, pageW, BANNER_H).fill('#1e1b4b');
 
-    doc.moveDown(4);
+    // Left: title + meta (respects left margin)
+    doc.fillColor('#fff').font('Helvetica-Bold').fontSize(16)
+       .text('Finance Report', M, 14, { width: contW * 0.52, lineBreak: false });
+    doc.fillColor('rgba(255,255,255,0.55)').font('Helvetica').fontSize(8)
+       .text(
+         `Generated: ${new Date().toLocaleString('en-IN')}   |   Records: ${rows.length}`,
+         M, 36, { width: contW * 0.52 }
+       );
 
-    // Table header
-    const cols = [
-      { label: 'Date', width: 70 },
-      { label: 'Type', width: 55 },
-      { label: 'Title', width: 130 },
-      { label: 'Project', width: 100 },
-      { label: 'Category', width: 100 },
-      { label: 'Amount', width: 70 },
-      { label: 'Party/Vendor', width: 110 },
-      { label: 'Status', width: 60 },
-    ];
-
-    const tableLeft = 40;
-    let y = doc.y;
-
-    // Draw header
-    doc.rect(tableLeft, y, cols.reduce((s, c) => s + c.width, 0), 20).fill('#1A237E');
-    let x = tableLeft;
-    doc.fontSize(8).fillColor('#fff');
-    cols.forEach((col) => {
-      doc.text(col.label, x + 3, y + 5, { width: col.width - 6, ellipsis: true });
-      x += col.width;
+    // Right: 3 summary totals, right-aligned to right margin
+    const BW   = 82;  // each block width
+    const netX  = pageW - M - BW;
+    const expX  = netX - BW - 6;
+    const incX  = expX - BW - 6;
+    [
+      { label: 'INCOME',  val: fmt(totalIncome),  x: incX, lc: '#a5f3fc', vc: '#6ee7b7' },
+      { label: 'EXPENSE', val: fmt(totalExpense), x: expX, lc: '#fca5a5', vc: '#f87171' },
+      { label: 'NET',     val: fmt(net),           x: netX, lc: net >= 0 ? '#bfdbfe' : '#fde68a', vc: net >= 0 ? '#93c5fd' : '#fcd34d' },
+    ].forEach(({ label, val, x, lc, vc }) => {
+      doc.fillColor(lc).font('Helvetica-Bold').fontSize(7).text(label, x, 14, { width: BW, lineBreak: false });
+      doc.fillColor(vc).font('Helvetica-Bold').fontSize(11).text(val,   x, 26, { width: BW, lineBreak: false });
     });
-    y += 20;
 
-    // Draw rows
+    let y = BANNER_H + 12;
+
+    // ── Summary Cards ─────────────────────────────────────────
+    const cards = [
+      { label: 'Total Income',  value: fmt(totalIncome),  bg: '#dcfce7', fg: '#15803d' },
+      { label: 'Total Expense', value: fmt(totalExpense), bg: '#fee2e2', fg: '#b91c1c' },
+      { label: 'Net Balance',   value: fmt(net),          bg: net >= 0 ? '#dbeafe' : '#fef3c7', fg: net >= 0 ? '#1d4ed8' : '#b45309' },
+      { label: 'Total Records', value: String(rows.length), bg: '#f3e8ff', fg: '#7e22ce' },
+    ];
+    const cardW = (contW - 12) / 4;
+    cards.forEach((card, i) => {
+      const cx = M + i * (cardW + 4);
+      doc.roundedRect(cx, y, cardW, 44, 4).fill(card.bg);
+      doc.fillColor(card.fg).font('Helvetica-Bold').fontSize(7)
+         .text(card.label.toUpperCase(), cx + 8, y + 7, { width: cardW - 16, lineBreak: false });
+      doc.fillColor(card.fg).font('Helvetica-Bold').fontSize(12)
+         .text(card.value, cx + 8, y + 19, { width: cardW - 16, lineBreak: false });
+    });
+
+    y += 56;
+
+    // ── Table — columns sum to contW (697) ────────────────────
+    const cols = [
+      { label: 'Date',         w: 62  },
+      { label: 'Type',         w: 44  },
+      { label: 'Title',        w: 128 },
+      { label: 'Project',      w: 82  },
+      { label: 'Category',     w: 82  },
+      { label: 'Amount (Rs.)', w: 84  },
+      { label: 'Party/Vendor', w: 90  },
+      { label: 'Method',       w: 70  },
+      { label: 'Status',       w: 55  },
+    ]; // 62+44+128+82+82+84+90+70+55 = 697
+
+    const ROW_H = 19;
+
+    const drawHeader = (hy) => {
+      doc.rect(M, hy, contW, 22).fill('#1e1b4b');
+      let cx = M;
+      doc.fillColor('#e0e7ff').font('Helvetica-Bold').fontSize(7.5);
+      cols.forEach((col) => {
+        doc.text(col.label, cx + 4, hy + 7, { width: col.w - 8, lineBreak: false });
+        cx += col.w;
+      });
+      return hy + 22;
+    };
+
+    y = drawHeader(y);
+
     rows.forEach((row, i) => {
-      if (y > doc.page.height - 80) {
-        doc.addPage({ layout: 'landscape' });
-        y = 40;
+      // New page if row won't fit (1-inch bottom margin)
+      if (y + ROW_H > pageH - M) {
+        doc.addPage({ size: 'A4', layout: 'landscape', margin: 0 });
+        y = M;
+        y = drawHeader(y);
       }
-      const isIncome = row.type === 'income';
-      const bgColor = i % 2 === 0 ? (isIncome ? '#F1F8E9' : '#FFF3E0') : '#fff';
-      doc.rect(tableLeft, y, cols.reduce((s, c) => s + c.width, 0), 18).fill(bgColor);
 
-      x = tableLeft;
-      doc.fontSize(7).fillColor(isIncome ? '#2E7D32' : '#C62828');
+      const isIncome = row.type === 'income';
+      const rowBg = i % 2 === 0 ? (isIncome ? '#f0fdf4' : '#fff5f5') : '#ffffff';
+      doc.rect(M, y, contW, ROW_H).fill(rowBg);
+      doc.strokeColor('#e2e8f0').lineWidth(0.3)
+         .moveTo(M, y + ROW_H).lineTo(M + contW, y + ROW_H).stroke();
+
+      const amtNet = Number(row.amount || 0) + Number(row.tax_amount || 0) - Number(row.discount || 0);
       const cells = [
-        row.date, row.type.toUpperCase(), row.title, row.project_name || '-',
-        row.category_name || '-', '₹' + row.amount.toFixed(2), row.party_name || '-', row.status
+        { val: row.date || '-',                                color: '#475569' },
+        { val: row.type.toUpperCase(),                         color: isIncome ? '#16a34a' : '#dc2626' },
+        { val: row.title || '-',                               color: '#1e293b' },
+        { val: row.project_name || '-',                        color: '#475569' },
+        { val: row.category_name || '-',                       color: '#475569' },
+        { val: fmt(amtNet),                                    color: isIncome ? '#15803d' : '#b91c1c' },
+        { val: row.party_name || '-',                          color: '#475569' },
+        { val: (row.payment_method || '-').replace(/_/g, ' '), color: '#475569' },
+        { val: row.status || '-',                              color: '#475569' },
       ];
-      cells.forEach((val, ci) => {
-        doc.fillColor(ci <= 0 ? '#555' : ci === 1 ? (isIncome ? '#2E7D32' : '#C62828') : '#333');
-        doc.text(String(val || '-'), x + 3, y + 4, { width: cols[ci].width - 6, ellipsis: true });
-        x += cols[ci].width;
+
+      let cx = M;
+      doc.font('Helvetica').fontSize(7.5);
+      cells.forEach((cell, ci) => {
+        doc.fillColor(cell.color)
+           .text(String(cell.val || '-'), cx + 4, y + 5, {
+             width: cols[ci].w - 8,
+             lineBreak: false,
+             ellipsis: true,
+           });
+        cx += cols[ci].w;
       });
 
-      // Row border
-      doc.moveTo(tableLeft, y + 18).lineTo(tableLeft + cols.reduce((s, c) => s + c.width, 0), y + 18)
-        .strokeColor('#E8EAF6').lineWidth(0.5).stroke();
-      y += 18;
+      y += ROW_H;
     });
+
+    if (rows.length === 0) {
+      doc.fillColor('#94a3b8').font('Helvetica').fontSize(11)
+         .text('No transactions found for the selected filters.', M, y + 20, { width: contW, align: 'center' });
+    }
+
+    // ── Footer (within bottom margin) ─────────────────────────
+    doc.fillColor('#94a3b8').font('Helvetica').fontSize(7)
+       .text(
+         'Finance Monitor  —  Confidential Report',
+         M, pageH - 24, { width: contW, align: 'center' }
+       );
 
     doc.end();
   });
