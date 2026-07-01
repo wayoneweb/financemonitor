@@ -444,6 +444,100 @@ db.serialize(() => {
   safeAlter(`ALTER TABLE projects ADD COLUMN client_phone TEXT DEFAULT ''`);
   safeAlter(`ALTER TABLE projects ADD COLUMN client_gstin TEXT DEFAULT ''`);
 
+  // Accounting-specific columns on the existing company/letterhead table —
+  // inv_companies already has name/address/GSTIN/PAN/bank details, so it
+  // doubles as the "Company" master for the accounting module too.
+  safeAlter(`ALTER TABLE inv_companies ADD COLUMN fiscal_year_start_month INTEGER DEFAULT 4`);
+  safeAlter(`ALTER TABLE inv_companies ADD COLUMN books_begin_date DATE`);
+  safeAlter(`ALTER TABLE inv_companies ADD COLUMN is_active INTEGER DEFAULT 1`);
+
+  // ── Accounting: Chart of Accounts / Vouchers / Ledger ─────────
+  db.run(`CREATE TABLE IF NOT EXISTS account_groups (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id   INTEGER NOT NULL REFERENCES inv_companies(id) ON DELETE CASCADE,
+    name         TEXT NOT NULL,
+    account_type TEXT NOT NULL CHECK(account_type IN ('asset','liability','income','capital','expense')),
+    parent_id    INTEGER REFERENCES account_groups(id) ON DELETE SET NULL,
+    is_system    INTEGER DEFAULT 0,
+    sort_order   INTEGER DEFAULT 0,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS ledger_accounts (
+    id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id             INTEGER NOT NULL REFERENCES inv_companies(id) ON DELETE CASCADE,
+    group_id               INTEGER NOT NULL REFERENCES account_groups(id) ON DELETE RESTRICT,
+    code                   TEXT DEFAULT '',
+    name                   TEXT NOT NULL,
+    account_type           TEXT NOT NULL CHECK(account_type IN ('asset','liability','income','capital','expense')),
+    opening_balance        REAL DEFAULT 0,
+    opening_balance_type   TEXT DEFAULT 'debit' CHECK(opening_balance_type IN ('debit','credit')),
+    opening_date           DATE,
+    linked_bank_account_id INTEGER REFERENCES bank_accounts(id) ON DELETE SET NULL,
+    gstin                  TEXT DEFAULT '',
+    party_type             TEXT DEFAULT '',
+    address                TEXT DEFAULT '',
+    phone                  TEXT DEFAULT '',
+    email                  TEXT DEFAULT '',
+    is_active              INTEGER DEFAULT 1,
+    notes                  TEXT DEFAULT '',
+    created_at             DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at             DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(company_id, name)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS vouchers (
+    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id            INTEGER NOT NULL REFERENCES inv_companies(id) ON DELETE CASCADE,
+    voucher_type          TEXT NOT NULL CHECK(voucher_type IN ('payment','receipt','journal','contra','sales','purchase','debit_note','credit_note')),
+    voucher_no            TEXT NOT NULL,
+    voucher_date          DATE NOT NULL,
+    reference_no          TEXT DEFAULT '',
+    narration             TEXT DEFAULT '',
+    total_amount          REAL DEFAULT 0,
+    status                TEXT DEFAULT 'posted' CHECK(status IN ('draft','posted','cancelled')),
+    linked_invoice_id     INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+    linked_transaction_id INTEGER REFERENCES transactions(id) ON DELETE SET NULL,
+    created_by            INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(company_id, voucher_type, voucher_no)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS voucher_lines (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    voucher_id        INTEGER NOT NULL REFERENCES vouchers(id) ON DELETE CASCADE,
+    ledger_account_id INTEGER NOT NULL REFERENCES ledger_accounts(id) ON DELETE RESTRICT,
+    dr_cr             TEXT NOT NULL CHECK(dr_cr IN ('debit','credit')),
+    amount            REAL NOT NULL,
+    narration         TEXT DEFAULT '',
+    sort_order        INTEGER DEFAULT 0
+  )`);
+
+  // Ensure at least one company exists, and every company has default
+  // Chart of Accounts groups + a Cash-in-Hand ledger seeded.
+  const { seedDefaultsForCompany } = require('./lib/accountingSeed');
+  db.get('SELECT COUNT(*) as cnt FROM inv_companies', [], (err, row) => {
+    if (err) return;
+    const seedAllCompanies = () => {
+      db.all('SELECT id FROM inv_companies', [], (e2, rows) => {
+        if (e2 || !rows) return;
+        rows.forEach((r) => seedDefaultsForCompany(db, r.id, () => {}));
+      });
+    };
+    if (row.cnt === 0) {
+      db.run(
+        `INSERT INTO inv_companies (name, country, is_default) VALUES ('My Company', 'India', 1)`,
+        function (e3) {
+          if (e3) return;
+          seedDefaultsForCompany(db, this.lastID, () => {});
+        }
+      );
+    } else {
+      seedAllCompanies();
+    }
+  });
+
   // Seed default categories if empty
   db.get('SELECT COUNT(*) as cnt FROM categories', [], (err, row) => {
     if (err || row.cnt > 0) return;

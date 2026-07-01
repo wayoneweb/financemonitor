@@ -43,6 +43,14 @@ const navGroups = [
     ],
   },
   {
+    label: 'Accounting',
+    links: [
+      { to: '/accounting/chart-of-accounts', icon: 'fa-sitemap',       label: 'Chart of Accounts' },
+      { to: '/accounting/vouchers',          icon: 'fa-file-invoice', label: 'Vouchers' },
+      { to: '/accounting/reports',           icon: 'fa-chart-pie',   label: 'Financial Reports' },
+    ],
+  },
+  {
     label: 'Reports',
     links: [
       { to: '/reports', icon: 'fa-file-export', label: 'Export / Import' },

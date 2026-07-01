@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════════════════════
+   Financial Reports
+   ═══════════════════════════════════════════════════════════════ */
+
+.fr-page { padding: 22px 26px 40px; background: #F5F5F5; min-height: calc(100vh - 56px); font-family: 'Inter', system-ui, sans-serif; }
+
+.fr-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.fr-header-left h1 { font-size: 22px; font-weight: 800; color: #111827; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+.fr-header-left h1 .fa { color: #4f46e5; }
+.fr-header-left p { margin: 0; color: #6b7280; font-size: 13px; }
+.fr-company-select { padding: 9px 14px; border-radius: 10px; border: 1.5px solid #E0E0E0; background: #fff; font-weight: 600; font-size: 13px; }
+
+.fr-tabs { display: flex; gap: 6px; margin-bottom: 16px; background: #fff; padding: 6px; border-radius: 12px; width: fit-content; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.fr-tab { border: none; background: transparent; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #6b7280; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.fr-tab.active { background: #4f46e5; color: #fff; }
+
+.fr-toolbar { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+.fr-date-field { display: flex; flex-direction: column; gap: 4px; }
+.fr-date-field label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; }
+.fr-date-field input { padding: 8px 12px; border-radius: 9px; border: 1.5px solid #E5E7EB; background: #fff; }
+.fr-export-grp { display: flex; gap: 8px; margin-left: auto; }
+.fr-export-grp button { padding: 8px 14px; border-radius: 9px; border: 1.5px solid #E5E7EB; background: #fff; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.fr-export-grp button:hover { background: #F9FAFB; }
+
+.fr-loading, .fr-empty { padding: 60px; text-align: center; color: #9ca3af; }
+
+.fr-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #ef4444; }
+.fr-card.balanced { border-top-color: #10b981; }
+
+.fr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fr-table th { text-align: left; padding: 8px 10px; color: #6b7280; font-weight: 700; font-size: 11.5px; text-transform: uppercase; border-bottom: 2px solid #F0F0F0; }
+.fr-table td { padding: 8px 10px; border-bottom: 1px solid #F3F4F6; color: #374151; }
+.fr-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.fr-table tfoot td { font-weight: 800; color: #111827; border-top: 2px solid #E5E7EB; border-bottom: none; padding-top: 10px; }
+.fr-muted { color: #9ca3af; font-size: 12px; }
+.fr-muted-sm { color: #9ca3af; font-size: 11px; }
+
+.fr-check-strip { margin-top: 16px; padding: 10px 14px; border-radius: 10px; background: #F9FAFB; font-weight: 700; font-size: 13px; }
+.fr-check-strip .ok { color: #059669; }
+.fr-check-strip .bad { color: #dc2626; }
+.fr-check-strip .fa { margin-right: 6px; }
+
+.fr-pl-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.fr-pl-hdr { font-weight: 800; font-size: 13px; padding: 6px 0; margin-bottom: 4px; border-bottom: 2px solid; }
+.fr-pl-hdr.income { color: #059669; border-color: #059669; }
+.fr-pl-hdr.expense { color: #dc2626; border-color: #dc2626; }
+.fr-pl-hdr.asset { color: #2563eb; border-color: #2563eb; }
+.fr-pl-hdr.liability { color: #dc2626; border-color: #dc2626; }
+.fr-pl-hdr.capital { color: #7c3aed; border-color: #7c3aed; margin-top: 18px; }
+
+.fr-net-strip { margin-top: 18px; padding: 14px 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 800; }
+.fr-net-strip.pos { background: #F0FDF4; color: #059669; }
+.fr-net-strip.neg { background: #FEF2F2; color: #dc2626; }
+
+.fr-db-voucher { padding: 12px 0; border-bottom: 1px solid #F3F4F6; }
+.fr-db-voucher:last-child { border-bottom: none; }
+.fr-db-hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 12.5px; }
+.fr-db-type { text-transform: uppercase; font-weight: 800; color: #4f46e5; background: #EEF2FF; padding: 3px 10px; border-radius: 8px; font-size: 11px; }
+.fr-db-no { font-weight: 700; color: #111827; }
+.fr-db-date { color: #6b7280; }
+.fr-db-narr { color: #9ca3af; margin-left: auto; }
+
+@media (max-width: 720px) {
+  .fr-page { padding: 16px; }
+  .fr-pl-cols { grid-template-columns: 1fr; }
+  .fr-tabs { flex-wrap: wrap; width: auto; }
+}

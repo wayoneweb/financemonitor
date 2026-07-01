@@ -21,6 +21,9 @@ import InvoiceEditor from './pages/InvoiceEditor';
 import Staff from './pages/Staff';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
+import ChartOfAccounts from './pages/ChartOfAccounts';
+import Vouchers from './pages/Vouchers';
+import FinancialReports from './pages/FinancialReports';
 import './App.css';
 
 export const ToastContext = React.createContext(null);
@@ -43,6 +46,9 @@ const PAGE_TITLES = {
   '/staff':           'Staff Management',
   '/attendance':      'Attendance',
   '/payroll':         'Payroll',
+  '/accounting/chart-of-accounts': 'Chart of Accounts',
+  '/accounting/vouchers':          'Vouchers',
+  '/accounting/reports':           'Financial Reports',
 };
 
 export default function App() {
@@ -172,6 +178,9 @@ export default function App() {
               <Route path="/staff"           element={<Staff />} />
               <Route path="/attendance"      element={<Attendance />} />
               <Route path="/payroll"         element={<Payroll />} />
+              <Route path="/accounting/chart-of-accounts" element={<ChartOfAccounts />} />
+              <Route path="/accounting/vouchers"          element={<Vouchers />} />
+              <Route path="/accounting/reports"           element={<FinancialReports />} />
             </Routes>
           </main>
         </div>

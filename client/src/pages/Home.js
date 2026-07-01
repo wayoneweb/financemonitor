@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './Home.css';
 
+const SERVICES = [
+  { label: 'Website',          icon: 'fa-globe' },
+  { label: 'Software',        icon: 'fa-code' },
+  { label: 'Solutions',       icon: 'fa-lightbulb' },
+  { label: 'Data Management', icon: 'fa-database' },
+  { label: 'Data Recovery',   icon: 'fa-hard-drive' },
+];
+
 export default function Home({ onEnter }) {
   // Longer splash so animations can be seen fully
   const [phase, setPhase] = useState('logo');
@@ -53,6 +61,14 @@ export default function Home({ onEnter }) {
         <p className="home-slogan">Expert Solutions, One True Way.</p>
         <div className="home-divider" />
         <p className="home-product-label">Wayone Business Mate</p>
+
+        <div className="home-services">
+          {SERVICES.map((s, i) => (
+            <span key={s.label} className="home-service-pill" style={{ animationDelay: `${i * 0.08}s` }}>
+              <i className={`fa ${s.icon}`} /> {s.label}
+            </span>
+          ))}
+        </div>
 
         <div className={`home-cta${ctaIn ? ' cta-in' : ''}`}>
           <button className="home-btn" onClick={onEnter}>

@@ -45,6 +45,7 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
+  perspective: 1000px;
   animation: hLogoIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -92,6 +93,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-style: preserve-3d;
+  animation: logoCoinFlip 3s linear infinite;
+}
+
+/* Coin-flip: spins on the vertical axis, edge-on at 90°/270° like a real coin */
+@keyframes logoCoinFlip {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
 }
 
 /* ── Badge image with glow-blink + float animations ── */
@@ -252,7 +261,50 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: #cccccc;
-  margin-bottom: 38px;
+  margin-bottom: 24px;
+}
+
+/* ── Services strip ───────────────────────────────────────────── */
+.home-services {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 34px;
+}
+
+.home-service-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #111111;
+  border: 1.5px solid #111111;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  opacity: 0;
+  transform: translateY(10px) scale(0.92);
+  animation: servicePillIn 0.5s ease forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.home-service-pill:hover {
+  background: #000000;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.32);
+}
+
+.home-service-pill .fa {
+  font-size: 0.82rem;
+  color: #ffffff;
+}
+
+@keyframes servicePillIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── CTA ──────────────────────────────────────────────────────── */
@@ -317,6 +369,7 @@
   .home-slogan       { font-size: 1rem; }
   .home-btn          { padding: 14px 28px; font-size: 0.95rem; }
   .home-content-block { padding: 32px 20px; }
+  .home-service-pill { font-size: 0.7rem; padding: 7px 12px; }
 }
 
 @media (max-width: 380px) {

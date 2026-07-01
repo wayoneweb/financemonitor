@@ -182,3 +182,47 @@ export const upcomingApi = {
   pay:     (id)          => ajax({ url: `/upcoming/${id}/pay`, method: 'PATCH' }),
   remove:  (id)          => ajax({ url: `/upcoming/${id}`, method: 'DELETE' }),
 };
+
+// ── Accounting: multi-company, Chart of Accounts, Vouchers, Reports ─
+export const getActiveCompany = () => localStorage.getItem('wbm_active_company') || '';
+export const setActiveCompany = (id) => {
+  localStorage.setItem('wbm_active_company', id);
+  window.dispatchEvent(new CustomEvent('wbm-company-change', { detail: id }));
+};
+
+export const companiesApi = {
+  list:   ()     => apiFetch('/api/companies'),
+  create: (data) => apiFetch('/api/companies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  update: (id, data) => apiFetch(`/api/companies/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+};
+
+export const coaApi = {
+  groups:       (companyId)        => apiFetch(`/api/coa/groups?company_id=${companyId}`),
+  createGroup:  (data)              => apiFetch('/api/coa/groups', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  updateGroup:  (id, data)          => apiFetch(`/api/coa/groups/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  removeGroup:  (id)                => apiFetch(`/api/coa/groups/${id}`, { method: 'DELETE' }),
+  ledgers:      (companyId, groupId) => apiFetch(`/api/coa/ledgers?company_id=${companyId}${groupId ? `&group_id=${groupId}` : ''}`),
+  createLedger: (data)              => apiFetch('/api/coa/ledgers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  updateLedger: (id, data)          => apiFetch(`/api/coa/ledgers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  removeLedger: (id)                => apiFetch(`/api/coa/ledgers/${id}`, { method: 'DELETE' }),
+  statement:    (id, params = {})   => apiFetch(`/api/coa/ledgers/${id}/statement?${new URLSearchParams(params).toString()}`),
+};
+
+export const vouchersApi = {
+  list:       (params = {}) => apiFetch(`/api/vouchers?${new URLSearchParams(params).toString()}`),
+  get:        (id)          => apiFetch(`/api/vouchers/${id}`),
+  create:     (data)        => apiFetch('/api/vouchers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  update:     (id, data)    => apiFetch(`/api/vouchers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }),
+  remove:     (id)          => apiFetch(`/api/vouchers/${id}`, { method: 'DELETE' }),
+  nextNumber: (companyId, type) => apiFetch(`/api/vouchers/next-number?company_id=${companyId}&type=${type}`),
+  daybook:    (params = {}) => apiFetch(`/api/vouchers/daybook?${new URLSearchParams(params).toString()}`),
+};
+
+export const accountingReportsApi = {
+  trialBalance:  (params = {}) => apiFetch(`/api/accounting-reports/trial-balance?${new URLSearchParams(params).toString()}`),
+  profitLoss:    (params = {}) => apiFetch(`/api/accounting-reports/profit-loss?${new URLSearchParams(params).toString()}`),
+  balanceSheet:  (params = {}) => apiFetch(`/api/accounting-reports/balance-sheet?${new URLSearchParams(params).toString()}`),
+  trialBalanceExportUrl: (params = {}, fmt = 'excel') => `/api/accounting-reports/trial-balance/export/${fmt}?${new URLSearchParams(params).toString()}`,
+  profitLossExportUrl:   (params = {}, fmt = 'excel') => `/api/accounting-reports/profit-loss/export/${fmt}?${new URLSearchParams(params).toString()}`,
+  balanceSheetExportUrl: (params = {}, fmt = 'excel') => `/api/accounting-reports/balance-sheet/export/${fmt}?${new URLSearchParams(params).toString()}`,
+};

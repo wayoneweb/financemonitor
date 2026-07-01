@@ -28,6 +28,10 @@ app.use('/api/assets',      require('./routes/assetsRoute'));
 app.use('/api/bank',        require('./routes/bankRoute'));
 app.use('/api/invoices',    require('./routes/invoicesRoute'));
 app.use('/api/hr',         require('./routes/hrRoute'));
+app.use('/api/companies',          require('./routes/companiesRoute'));
+app.use('/api/coa',                require('./routes/coaRoute'));
+app.use('/api/vouchers',           require('./routes/vouchersRoute'));
+app.use('/api/accounting-reports', require('./routes/accountingReportsRoute'));
 
 // Serve React build in production
 const clientBuild = path.join(__dirname, '../client/build');
