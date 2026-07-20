@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:5000/api/export/excel\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:5000/api/export/excel\")",
+      "Bash(node -e \"try{require\\('multer'\\);console.log\\('multer ok'\\)}catch\\(e\\){console.log\\('multer missing'\\)}\")",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force)",
+      "PowerShell(Start-Process -FilePath \"node\" -ArgumentList \"d:\\\\Git\\\\day2day\\\\server\\\\index.js\" -WorkingDirectory \"d:\\\\Git\\\\day2day\\\\server\" -NoNewWindow -PassThru)",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 800; Start-Process -FilePath \"node\" -ArgumentList \"index.js\" -WorkingDirectory \"d:\\\\Git\\\\day2day\\\\server\" -WindowStyle Hidden; Start-Sleep -Seconds 2; try { $r = Invoke-WebRequest -Uri \"http://localhost:5000/api/bank/accounts\" -UseBasicParsing -TimeoutSec 5; \"Server OK: $\\($r.StatusCode\\) — $\\($r.Content\\)\" } catch { \"Server check: $_\" })",
+      "Bash(PORT=5001 node index.js)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5001/)",
+      "Bash(curl -s http://localhost:5001/api/dashboard -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
