@@ -13,7 +13,9 @@
       "Bash(curl -s http://localhost:5001/api/dashboard -o /dev/null -w \"%{http_code}\\\\n\")",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git -C /d/Git/day2day ls-files)",
+      "Bash(node -e ' *)"
     ]
   }
 }
