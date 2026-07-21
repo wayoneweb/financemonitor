@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const crypto = require('crypto');
 
 const DB_PATH = path.join(__dirname, 'finance.db');
 
@@ -63,9 +64,8 @@ db.serialize(() => {
     value TEXT NOT NULL
   )`);
 
-  // Seed default credentials (only if not already set)
+  // Seed default admin username (only if not already set)
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_username', 'admin')`);
-  db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_password', 'Finance@2024')`);
 
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,15 +77,20 @@ db.serialize(() => {
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // Seed first admin from settings if users table is empty
+  // Seed first admin from settings if users table is empty.
+  // Password is either ADMIN_PASSWORD from the environment or a freshly
+  // generated random one — never a fixed value baked into the source.
   db.get('SELECT COUNT(*) as cnt FROM users', [], (err, row) => {
     if (err || row.cnt > 0) return;
     db.get("SELECT value FROM settings WHERE key='admin_username'", [], (e1, u) => {
-      db.get("SELECT value FROM settings WHERE key='admin_password'", [], (e2, p) => {
-        const uname = (u && u.value) ? u.value : 'admin';
-        const pwd   = (p && p.value) ? p.value : 'Finance@2024';
-        db.run('INSERT INTO users (username,password,role) VALUES (?,?,?)', [uname, pwd, 'admin'],
-          () => console.log('Seeded admin user:', uname));
+      const uname = (u && u.value) ? u.value : 'admin';
+      const pwd = process.env.ADMIN_PASSWORD || crypto.randomBytes(9).toString('base64');
+      db.run('INSERT INTO users (username,password,role) VALUES (?,?,?)', [uname, pwd, 'admin'], () => {
+        console.log('================================================');
+        console.log(' Seeded admin user:', uname);
+        console.log(' Generated password:', pwd);
+        console.log(' Save this now — it will not be shown again. Log in and change it immediately.');
+        console.log('================================================');
       });
     });
   });

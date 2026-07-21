@@ -15,7 +15,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(git -C /d/Git/day2day ls-files)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(echo \"grep -rl 'wayonebusinessmate\\\\\\\\|financemonitor\\\\\\\\|proxy_pass' /etc/nginx/sites-enabled/ 2>/dev/null\")"
     ]
   }
 }
